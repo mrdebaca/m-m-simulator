@@ -82,7 +82,6 @@
       <thead>
         <tr>
           <th>Color</th>
-          <th>Target %</th>
           <th>Count</th>
           <th>Sample %</th>
         </tr>
@@ -136,7 +135,6 @@
           const pct = ((count / size) * 100).toFixed(1);
           return `<tr>
             <td><strong>${c.name}</strong></td>
-            <td>${(c.prob * 100)}%</td>
             <td>${count}</td>
             <td>${pct}%</td>
           </tr>`;
@@ -152,3 +150,5 @@
   </script>
 </body>
 </html>
+
+
