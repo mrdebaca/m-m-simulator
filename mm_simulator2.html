@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M&M Random Sample Simulator</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 700px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    .card {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+    .controls {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    button {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover { background-color: #1d4ed8; }
+    .mm-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 24px;
+      min-height: 100px;
+      padding: 16px;
+      background: #f1f5f9;
+      border-radius: 8px;
+    }
+    .mm {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      box-shadow: inset -2px -2px 4px rgba(0,0,0,0.3);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+    .mm.Yellow { color: #333; text-shadow: none; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+    th { background: #f8fafc; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>M&M Random Sampler</h2>
+    <div class="controls">
+      <button id="drawBtn" type="button">Open New Bag</button>
+      <label>
+        Sample Size: 
+        <input type="number" id="sampleSize" value="20" min="5" max="100" style="width: 60px; padding: 4px;">
+      </label>
+    </div>
+
+    <div class="mm-container" id="mmDisplay"></div>
+
+    <h3>Distribution Results</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Color</th>
+          <th>Target %</th>
+          <th>Count</th>
+          <th>Sample %</th>
+        </tr>
+      </thead>
+      <tbody id="resultsTable"></tbody>
+    </table>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const COLORS = [
+        { name: 'Blue', prob: 0.24, hex: '#2563eb' },
+        { name: 'Orange', prob: 0.20, hex: '#ea580c' },
+        { name: 'Green', prob: 0.16, hex: '#16a34a' },
+        { name: 'Yellow', prob: 0.14, hex: '#facc15' },
+        { name: 'Red', prob: 0.13, hex: '#dc2626' },
+        { name: 'Brown', prob: 0.13, hex: '#78350f' }
+      ];
+
+      function getRandomColor() {
+        const rand = Math.random();
+        let cumulative = 0;
+        for (const color of COLORS) {
+          cumulative += color.prob;
+          if (rand < cumulative) return color;
+        }
+        return COLORS[COLORS.length - 1];
+      }
+
+      function drawSample() {
+        const size = parseInt(document.getElementById('sampleSize').value) || 20;
+        const display = document.getElementById('mmDisplay');
+        const tableBody = document.getElementById('resultsTable');
+        
+        display.innerHTML = '';
+        const counts = Object.fromEntries(COLORS.map(c => [c.name, 0]));
+
+        for (let i = 0; i < size; i++) {
+          const color = getRandomColor();
+          counts[color.name]++;
+          
+          const mm = document.createElement('div');
+          mm.className = `mm ${color.name}`;
+          mm.style.backgroundColor = color.hex;
+          mm.innerText = 'm';
+          display.appendChild(mm);
+        }
+
+        tableBody.innerHTML = COLORS.map(c => {
+          const count = counts[c.name];
+          const pct = ((count / size) * 100).toFixed(1);
+          return `<tr>
+            <td><strong>${c.name}</strong></td>
+            <td>${(c.prob * 100)}%</td>
+            <td>${count}</td>
+            <td>${pct}%</td>
+          </tr>`;
+        }).join('');
+      }
+
+      // Attach listener to button explicitly
+      document.getElementById('drawBtn').addEventListener('click', drawSample);
+
+      // Initial draw
+      drawSample();
+    });
+  </script>
+</body>
+</html>
